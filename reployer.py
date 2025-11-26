@@ -1038,11 +1038,35 @@ if __name__ == "__main__":
         default_ip = f"{CGE7_193[0]}:{CGE7_193[1]}"
     except Exception:
         default_ip = "169.150.249.133:22912"
-    ip_input = simpledialog.askstring("Server address","Enter server IP (ip:port):",initialvalue=default_ip,parent=temp_root)
-    temp_root.destroy()
-    if not ip_input:
+    default_ip = "169.150.249.133:22912"
+
+    ip_input = tk.Tk()
+    ip_input.configure(background="#1e1e1e")
+    label = tk.Label(ip_input, text="Enter server ip (ip:port):",foreground="#4fc3f7",background="#1e1e1e")
+    label.pack(padx=20, pady=20)
+
+    entry = tk.Entry(ip_input, font=('Arial', 10, 'normal'))
+    entry.insert(0, default_ip)
+    entry.pack(padx=20, pady=20)
+
+    ip_text = None  # this will store the result
+
+    def submit_ip():
+        global ip_text
+        ip_text = entry.get().strip()
+        ip_input.destroy() # close window
+
+    button = tk.Button(ip_input, text="Enter", command=submit_ip)
+    button.pack(pady=10)
+
+    ip_input.mainloop()  # <-- wait for user here
+
+    # after window closes, we have a real string:
+    # ip_text contains "ip:port"
+    host, sep, port_str = ip_text.partition(":")
+    if not ip_text:
         sys.exit(0)
-    host, sep, port_str = ip_input.strip().partition(":")
+    host, sep, port_str = tk.strip().partition(":")
     if not host:
         host = CGE7_193[0]
     try:
