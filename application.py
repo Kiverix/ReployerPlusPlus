@@ -1,6 +1,6 @@
-from dataclasses import dataclass, asdict, field
-from typing import Optional, Dict, List, Tuple, Any
-from sound import SoundSettings, SoundEngine
+from dataclasses import dataclass, field
+from typing import Dict, Any
+from sound import SoundSettings
 
 @dataclass
 class AppPrefs:

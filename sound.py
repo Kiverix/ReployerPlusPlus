@@ -1,8 +1,10 @@
 from dataclasses import dataclass, asdict, field
-from typing import Optional, Dict, List, Tuple, Any
-from application import AppPrefs
+from typing import Optional, Dict, List, Tuple, Any, TYPE_CHECKING
 import os
 
+if TYPE_CHECKING:
+    from application import AppPrefs
+    
 try:
     import pygame
     pygame.mixer.init()
