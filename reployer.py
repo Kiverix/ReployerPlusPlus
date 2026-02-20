@@ -16,6 +16,7 @@ from shiboken6 import isValid
 from PySide6 import QtCore, QtGui, QtWidgets
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from typing import Tuple, cast
 
 # a2s
 try:
@@ -836,7 +837,8 @@ class ProfileManagerDialog(QtWidgets.QDialog):
         p = self._profiles[i]
         host, port = p.address
         try:
-            info = a2s_info((host, port), timeout=TIMEOUT)
+            info = a2s_info((host, port), timeout=TIMEOUT, encoding="utf-8")
+            
             server_name = getattr(info, "server_name", "") or "(no name)"
             map_name = getattr(info, "map_name", "") or "(unknown map)"
             QtWidgets.QMessageBox.information(self, "A2S Test", f"OK\nServer: {server_name}\nMap: {map_name}")
@@ -1487,8 +1489,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def _poll_server_once(addr: Tuple[str, int]) -> PollResult:
         host, port = addr
         try:
-            info = a2s_info((host, port), timeout=TIMEOUT)
-            players = a2s_players((host, port), timeout=TIMEOUT)
+            info = a2s_info((host, port), timeout=TIMEOUT, encoding='utf-8')
+            players = a2s_players((host, port), timeout=TIMEOUT, encoding='utf-8')
 
             plist: List[Dict[str, object]] = []
             for p in players:
@@ -1865,7 +1867,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dl_worker.status.connect(self._on_dl_status)
         self._dl_worker.progress.connect(self._on_dl_progress)
         self._dl_worker.finished.connect(self._on_dl_finished)
-        self._dl_worker.finished.connect(lambda *_: self._dl_thread.quit())
+        self._dl_worker.finished.connect(
+            lambda *_: self._dl_thread.quit() if self._dl_thread else None
+        )
         self._dl_thread.finished.connect(self._cleanup_dl_thread)
 
         self.act_cancel_dl.setEnabled(True)
