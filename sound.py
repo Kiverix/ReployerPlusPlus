@@ -1,18 +1,13 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, asdict, field
 from typing import Optional, Dict, List, Tuple, Any, TYPE_CHECKING
 import os
 
 if TYPE_CHECKING:
     from application import AppPrefs
-    
-try:
-    import pygame
-    pygame.mixer.init()
-    pygame.mixer.set_num_channels(16)
-    PYGAME_AVAILABLE = True
-except Exception:
-    PYGAME_AVAILABLE = False
 
+from constants import (PYGAME_AVAILABLE, PYGAME)
 
 # sounds + prefs
 @dataclass
@@ -66,7 +61,7 @@ class SoundEngine:
         try:
             path = os.path.join("resources", filename)
             if os.path.exists(path):
-                s = pygame.mixer.Sound(path)
+                s = PYGAME.mixer.Sound(path)
                 s.set_volume(self._volume_float())
                 s.play()
         except Exception:
