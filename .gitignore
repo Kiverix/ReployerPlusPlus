@@ -5,3 +5,5 @@ servers.json
 prefs.json
 /downloads
 /__pycache__
+/ui/__pycache__
+/ui/profiles/__pycache__
