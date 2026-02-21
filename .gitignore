@@ -4,3 +4,4 @@ views_log.csv
 servers.json
 prefs.json
 /downloads
+/__pycache__
