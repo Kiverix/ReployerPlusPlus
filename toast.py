@@ -1,9 +1,11 @@
 from typing import List
-from PySide6 import QtCore,  QtWidgets
+from PySide6 import QtCore, QtWidgets
+
 
 class Toast(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget, message: str, kind: str = "info", duration_ms: int = 2500):
         super().__init__(parent)
+
         self.setWindowFlags(
             QtCore.Qt.WindowType.FramelessWindowHint |
             QtCore.Qt.WindowType.Tool |
@@ -31,6 +33,7 @@ class Toast(QtWidgets.QWidget):
                 font-size: 12px;
             }}
         """)
+
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(frame)
@@ -59,32 +62,59 @@ class Toast(QtWidgets.QWidget):
         anim.start()
         self._anim = anim
 
+
 class ToastManager(QtCore.QObject):
     def __init__(self, main_window: QtWidgets.QMainWindow):
         super().__init__(main_window)
         self.main_window = main_window
         self.toasts: List[Toast] = []
 
+        # Clean up when main window is destroyed
+        main_window.destroyed.connect(self._on_main_window_destroyed)
+
+    def _main_window_alive(self) -> bool:
+        try:
+            return self.main_window is not None and self.main_window.isVisible()
+        except RuntimeError:
+            return False
+
     def show(self, message: str, kind: str = "info", duration_ms: int = 2500):
+        if not self._main_window_alive():
+            return
+
         toast = Toast(self.main_window, message, kind=kind, duration_ms=duration_ms)
         toast.adjustSize()
         toast.show()
         self.toasts.append(toast)
         self.reposition()
+
         toast.destroyed.connect(lambda *_: self._on_toast_destroyed(toast))
 
+    def _on_main_window_destroyed(self, *_):
+        # Close all toasts safely
+        for t in list(self.toasts):
+            try:
+                t.close()
+            except Exception:
+                pass
+        self.toasts.clear()
+        self.main_window = None
+
     def _on_toast_destroyed(self, toast: Toast):
-        self.toasts = [t for t in self.toasts if t is not toast and not t.isHidden()]
+        self.toasts = [t for t in self.toasts if t is not toast]
         self.reposition()
 
     def reposition(self):
-        if not self.main_window.isVisible():
+        if not self._main_window_alive():
             return
 
-        geo = self.main_window.geometry()
-        top_left = self.main_window.mapToGlobal(QtCore.QPoint(0, 0))
-        x0, y0 = top_left.x(), top_left.y()
+        try:
+            geo = self.main_window.geometry()
+            top_left = self.main_window.mapToGlobal(QtCore.QPoint(0, 0))
+        except RuntimeError:
+            return
 
+        x0, y0 = top_left.x(), top_left.y()
         margin = 16
         x_right = x0 + geo.width() - margin
         y_bottom = y0 + geo.height() - margin
