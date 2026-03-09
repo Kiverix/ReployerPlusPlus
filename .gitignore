@@ -7,3 +7,8 @@ prefs.json
 /__pycache__
 /ui/__pycache__
 /ui/profiles/__pycache__
+*.spec
+/build
+/dist
+*.json
+*.exe

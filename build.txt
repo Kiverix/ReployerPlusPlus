@@ -1,0 +1,2 @@
+If you want to build reployer and not just run the reployer.py file for testing, install pyinstaller then run the following command:
+pyinstaller --onefile --windowed --icon=resources\sourceclown.ico --add-data "resources;resources" application.py
